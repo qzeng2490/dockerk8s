@@ -40,6 +40,9 @@ public abstract class LoginFilter implements Filter {
 
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
 
+
+        System.out.println("+++++++++++In doFilter");
+
         HttpServletRequest request = (HttpServletRequest)servletRequest;
         HttpServletResponse response = (HttpServletResponse)servletResponse;
 
