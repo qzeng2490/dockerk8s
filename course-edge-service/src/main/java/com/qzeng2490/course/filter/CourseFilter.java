@@ -28,7 +28,7 @@ public class CourseFilter extends LoginFilter {
     @Override
     protected String userEdgeServiceAddr() {
 
-        System.out.println("course.edge.service:"+userEdgeServiceAddr+";");
+        System.out.println("----course-edge-service:"+userEdgeServiceAddr+";");
         return userEdgeServiceAddr;
 
 
