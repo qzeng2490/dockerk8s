@@ -1,7 +1,9 @@
 package com.qzeng2490.course.filter;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.qzeng2490.thrift.user.dto.UserDTO;
-import com.qzeng2490.user.client.LoginFilter;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
@@ -11,35 +13,92 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by liming.
  */
 @Component
 @WebFilter
-public class CourseFilter extends LoginFilter {
+public class CourseFilter implements Filter {
 
     @Value("${user.edge.service.addr}")
     private String userEdgeServiceAddr;
 
-    @Override
     protected String userEdgeServiceAddr() {
 
         System.out.println("----course-edge-service:"+userEdgeServiceAddr+";");
         return userEdgeServiceAddr;
+    }
 
+    private static Cache<String, UserDTO> cache =
+            CacheBuilder.newBuilder().maximumSize(10000)
+                    .expireAfterWrite(3, TimeUnit.MINUTES).build();
+
+
+    public void init(FilterConfig filterConfig) throws ServletException {
 
     }
+
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+
+
+        System.out.println("+++++++++++In doFilter");
+
+        HttpServletRequest request = (HttpServletRequest)servletRequest;
+        HttpServletResponse response = (HttpServletResponse)servletResponse;
+
+        String token = request.getParameter("token");
+        if(StringUtils.isBlank(token)) {
+            Cookie[] cookies = request.getCookies();
+            if(cookies!=null) {
+                for(Cookie c : cookies) {
+                    if(c.getName().equals("token")) {
+                        token = c.getValue();
+                    }
+                }
+            }
+        }
+
+        UserDTO userDTO = null;
+        if(StringUtils.isNotBlank(token)) {
+            userDTO = cache.getIfPresent(token);
+            if(userDTO==null) {
+                userDTO = requestUserInfo(token);
+                if(userDTO!=null) {
+                    cache.put(token, userDTO);
+                }
+            }
+        }
+
+        if(userDTO==null) {
+            System.out.println("---sendRedirect: http://127.0.0.1:8180/user/login");
+            response.sendRedirect("http://127.0.0.1:8180/user/login");
+            return;
+        }
+
+        login(request, response, userDTO);
+
+        filterChain.doFilter(request, response);
+    }
+
     private UserDTO requestUserInfo(String token) {
-        String url = "http://"+userEdgeServiceAddr+"/user/authentication";
+        String url = "http://"+userEdgeServiceAddr()+"/user/authentication";
 
         HttpClient client = new DefaultHttpClient();
-        System.out.print("url:"+url);
+        System.out.println("---url:"+url);
         HttpPost post = new HttpPost(url);
         post.addHeader("token", token);
         InputStream inputStream = null;
@@ -60,9 +119,9 @@ public class CourseFilter extends LoginFilter {
             return userDTO;
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.print("url:"+url);
+            System.out.println("url:"+url);
         } finally {
-            System.out.print("url:"+url);
+            System.out.println("url:"+url);
             if(inputStream!=null) {
                 try{
                     inputStream.close();
@@ -74,7 +133,11 @@ public class CourseFilter extends LoginFilter {
         return null;
     }
 
-    @Override
+    public void destroy() {
+
+    }
+
+//    @Override
     protected void login(HttpServletRequest request, HttpServletResponse response, UserDTO userDTO) {
 
         userDTO = requestUserInfo(request.getParameter("token"));
