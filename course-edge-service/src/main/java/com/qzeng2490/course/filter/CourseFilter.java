@@ -11,6 +11,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.io.InputStream;
  * Created by liming.
  */
 @Component
+@WebFilter
 public class CourseFilter extends LoginFilter {
 
     @Value("${user.edge.service.addr}")
