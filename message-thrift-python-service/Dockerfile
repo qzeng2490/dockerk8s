@@ -1,4 +1,4 @@
-FROM python:3.7
+FROM 192.168.56.102:8080/micro-service/python:3.7
 MAINTAINER zengqiang qzeng2017@163.com
 
 RUN pip install thrift

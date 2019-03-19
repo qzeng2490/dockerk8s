@@ -2,5 +2,5 @@
 
 source ~/.bash_profile
 mvn package
-docker build -t course-dubbo-service:latest .
-#docker push course-dubbo-service:latest
+docker build -t 192.168.56.102:8080/micro-service/course-dubbo-service:latest .
+docker push 192.168.56.102:8080/micro-service/course-dubbo-service:latest
