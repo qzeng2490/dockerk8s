@@ -33,4 +33,6 @@ spec:
         image: 192.168.56.102:8080/micro-service/course-edge-service:latest
         ports:
         - containerPort: 8081
+      imagePullSecrets:
+        - name: regcred
 

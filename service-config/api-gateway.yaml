@@ -6,10 +6,10 @@ metadata:
   name: api-gateway
 spec:
   ports:
-  - port: 80
+  - port: 30001
     protocol: TCP
     targetPort: 8180
-    nodePort: 80
+    nodePort: 30001
   selector:
     app: api-gateway
   type: NodePort
@@ -30,4 +30,6 @@ spec:
         image: 192.168.56.102:8080/micro-service/api-gateway-zuul:latest
         ports:
         - containerPort: 8180
+      imagePullSecrets:
+        - name: regcred
 

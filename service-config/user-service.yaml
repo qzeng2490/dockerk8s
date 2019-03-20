@@ -33,11 +33,13 @@ spec:
     spec:
       containers:
       - name: user-service
-        image: 192.168.56.102:8080/micro-service/user-service:latest
+        image: 192.168.56.102:8080/micro-service/user-thrift-service:latest
         ports:
         - containerPort: 7911
       - name: user-edge-service
         image: 192.168.56.102:8080/micro-service/user-edge-service:latest
         ports:
         - containerPort: 8082
+      imagePullSecrets:
+        - name: regcred
 
