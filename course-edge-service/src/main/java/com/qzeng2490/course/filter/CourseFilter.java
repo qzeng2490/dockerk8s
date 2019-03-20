@@ -37,10 +37,18 @@ public class CourseFilter implements Filter {
     @Value("${user.edge.service.addr}")
     private String userEdgeServiceAddr;
 
+    @Value("${api.gateway.zuul.addr}")
+    private String gateWayServiceAddr;
+
     protected String userEdgeServiceAddr() {
 
         System.out.println("----course-edge-service:"+userEdgeServiceAddr+";");
         return userEdgeServiceAddr;
+    }
+
+    protected String gateWayServiceAddr() {
+
+        return gateWayServiceAddr;
     }
 
     private static Cache<String, UserDTO> cache =
@@ -84,8 +92,8 @@ public class CourseFilter implements Filter {
         }
 
         if(userDTO==null) {
-            System.out.println("---sendRedirect: http://127.0.0.1:8180/user/login");
-            response.sendRedirect("http://127.0.0.1:8180/user/login");
+            System.out.println("---sendRedirect: http://"+userEdgeServiceAddr()+"/user/login");
+            response.sendRedirect(gateWayServiceAddr()+"/user/login");
             return;
         }
 
