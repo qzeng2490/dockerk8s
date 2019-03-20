@@ -7,3 +7,7 @@ You must first minikube delete if you want new flags to be respected
 
 在宿主机上创建secret 这样保证了pull 私有仓库的时候回去用指定用户名和密码登录
 kubectl create secret docker-registry regcred --docker-server=192.168.56.102:8080 --docker-username=admin --docker-password=Harbor12345 --docker-email=qzeng2490@163.com
+
+
+dubbo 注册时，因为dubbo的provider和consumer在同一个POD中，启动后需要手动重启一下consumer也就是
+course-edge-service，这样才不会出现refernce为空的情况
